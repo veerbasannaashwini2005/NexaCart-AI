@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Products - Online Grocery Store</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .product-card {
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            height: 220px;
+            width: 100%;
+            object-fit: contain;
+            background: #f1f1f1;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .price {
+            color: #198754;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .category-badge {
+            font-size: 12px;
+        }
+
+        .filter-button {
+            margin: 4px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<!-- ==============================
+     NAVBAR
+     ============================== -->
+
+<nav class="navbar navbar-dark bg-success">
+
+    <div class="container">
+
+        <a class="navbar-brand" href="/">
+            🛒 Online Grocery Store
+        </a>
+
+        <div>
+
+            <a href="/"
+               class="btn btn-light btn-sm me-2">
+                Home
+            </a>
+
+            <a href="/cart"
+               class="btn btn-warning btn-sm me-2">
+                🛒 Cart
+            </a>
+
+            <a href="/orders"
+               class="btn btn-light btn-sm">
+                My Orders
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- ==============================
+     MAIN CONTAINER
+     ============================== -->
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between
+                align-items-center mb-4">
+
+        <h2>
+            🛍️ Our Products
+        </h2>
+
+    </div>
+
+
+    <!-- ==============================
+         SEARCH
+         ============================== -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-8">
+
+            <input
+                type="text"
+                id="searchInput"
+                class="form-control form-control-lg"
+                placeholder="🔎 Search products..."
+                oninput="applyFilters()">
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <select
+                id="categorySelect"
+                class="form-select form-select-lg"
+                onchange="applyFilters()">
+
+                <option value="ALL">
+                    All Categories
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================
+         CATEGORY BUTTONS
+         ============================== -->
+
+    <div class="mb-4">
+
+        <strong>
+            Categories:
+        </strong>
+
+        <div id="categoryButtons"
+             class="mt-2">
+
+            <button
+                class="btn btn-success filter-button"
+                onclick="selectCategory('ALL')">
+
+                All
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================
+         MESSAGE
+         ============================== -->
+
+    <div id="message"></div>
+
+
+    <!-- ==============================
+         PRODUCTS
+         ============================== -->
+
+    <div
+        id="productsContainer"
+        class="row g-4">
+
+        <div class="col-12 text-center">
+
+            <div class="spinner-border text-success">
+            </div>
+
+            <p class="mt-2">
+                Loading products...
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let allProducts = [];
+
+let allCategories = [];
+
+
+// ==============================
+// LOAD PRODUCTS
+// ==============================
+
+function loadProducts() {
+
+    fetch("/api/products")
+
+        .then(response => {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load products"
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(products => {
+
+            allProducts = products;
+
+            applyFilters();
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            document.getElementById(
+                "productsContainer"
+            ).innerHTML = `
+
+                <div class="col-12">
+
+                    <div class="alert alert-danger">
+
+                        Unable to load products.
+
+                        <br>
+
+                        ${error.message}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+}
+
+
+// ==============================
+// LOAD CATEGORIES
+// ==============================
+
+function loadCategories() {
+
+    fetch("/api/categories")
+
+        .then(response => {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load categories"
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(categories => {
+
+            allCategories = categories;
+
+            const select =
+                document.getElementById(
+                    "categorySelect"
+                );
+
+            const buttons =
+                document.getElementById(
+                    "categoryButtons"
+                );
+
+
+            // Add categories to dropdown
+
+            categories.forEach(category => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    category.id;
+
+                option.textContent =
+                    category.name;
+
+                select.appendChild(option);
+
+
+                // Category button
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+                button.className =
+                    "btn btn-outline-success filter-button";
+
+                button.textContent =
+                    category.name;
+
+                button.onclick = function() {
+
+                    select.value =
+                        category.id;
+
+                    applyFilters();
+
+                };
+
+                buttons.appendChild(button);
+
+            });
+
+        })
+
+        .catch(error => {
+
+            console.error(
+                "Category loading error:",
+                error
+            );
+
+        });
+
+}
+
+
+// ==============================
+// APPLY SEARCH + CATEGORY FILTER
+// ==============================
+
+function applyFilters() {
+
+    const searchText =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .toLowerCase()
+        .trim();
+
+
+    const selectedCategory =
+        document.getElementById(
+            "categorySelect"
+        ).value;
+
+
+    let filteredProducts =
+        allProducts.filter(product => {
+
+            // Search filter
+
+            const matchesSearch =
+                product.name
+                    .toLowerCase()
+                    .includes(searchText);
+
+
+            // Category filter
+
+            let matchesCategory = true;
+
+
+            if (selectedCategory !== "ALL") {
+
+                matchesCategory =
+                    product.category &&
+                    String(
+                        product.category.id
+                    ) === String(
+                        selectedCategory
+                    );
+
+            }
+
+
+            return (
+                matchesSearch &&
+                matchesCategory
+            );
+
+        });
+
+
+    displayProducts(
+        filteredProducts
+    );
+
+}
+
+
+// ==============================
+// SELECT CATEGORY
+// ==============================
+
+function selectCategory(categoryId) {
+
+    document.getElementById(
+        "categorySelect"
+    ).value = categoryId;
+
+    applyFilters();
+
+}
+
+
+// ==============================
+// DISPLAY PRODUCTS
+// ==============================
+
+function displayProducts(products) {
+
+    const container =
+        document.getElementById(
+            "productsContainer"
+        );
+
+
+    container.innerHTML = "";
+
+
+    if (products.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="col-12">
+
+                <div class="alert alert-info text-center">
+
+                    <h5>
+                        No products found
+                    </h5>
+
+                    <p class="mb-0">
+                        Try another search or category.
+                    </p>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    products.forEach(product => {
+
+        let categoryName =
+            "Uncategorized";
+
+
+        if (product.category) {
+
+            categoryName =
+                product.category.name;
+
+        }
+
+
+        let stockText = "";
+
+        let buttonDisabled = "";
+
+
+        if (product.stock > 0) {
+
+            stockText =
+                `Available: ${product.stock}`;
+
+        } else {
+
+            stockText =
+                "Out of Stock";
+
+            buttonDisabled =
+                "disabled";
+
+        }
+
+
+        let imageUrl =
+            "/images/" +
+            (product.imageUrl || "");
+
+
+        container.innerHTML += `
+
+            <div class="col-md-4 col-lg-3">
+
+                <div class="card product-card shadow-sm">
+
+                    <img
+                        src="${imageUrl}"
+                        class="product-image"
+                        alt="${product.name}"
+                        onerror="this.src='https://via.placeholder.com/400x250?text=${encodeURIComponent(product.name)}'">
+
+
+                    <div class="card-body d-flex flex-column">
+
+                        <div class="mb-2">
+
+                            <span
+                                class="badge bg-secondary category-badge">
+
+                                ${categoryName}
+
+                            </span>
+
+                        </div>
+
+
+                        <h5 class="card-title">
+
+                            ${product.name}
+
+                        </h5>
+
+
+                        <p class="card-text text-muted">
+
+                            ${product.description || ""}
+
+                        </p>
+
+
+                        <div class="price mb-2">
+
+                            ₹${Number(
+                                product.price
+                            ).toFixed(2)}
+
+                        </div>
+
+
+                        <p class="small
+                                  ${product.stock > 0
+                                      ? "text-success"
+                                      : "text-danger"}">
+
+                            ${stockText}
+
+                        </p>
+
+
+                        <div class="mt-auto">
+
+                            <a
+                                href="/products/${product.id}"
+                                class="btn btn-outline-success w-100 mb-2">
+
+                                👁️ View Details
+
+                            </a>
+
+
+                            <button
+                                class="btn btn-success w-100"
+                                ${buttonDisabled}
+                                onclick="addToCart(${product.id})">
+
+                                🛒 Add to Cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+// ==============================
+// ADD TO CART
+// ==============================
+
+function addToCart(productId) {
+
+    const storedUser =
+        localStorage.getItem(
+            "loggedInUser"
+        );
+
+
+    if (!storedUser) {
+
+        alert(
+            "Please login before adding products to cart."
+        );
+
+        window.location.href =
+            "/login";
+
+        return;
+
+    }
+
+
+    const user =
+        JSON.parse(storedUser);
+
+
+    fetch(
+        `/api/cart/add?userId=${user.id}&productId=${productId}&quantity=1`,
+        {
+            method: "POST"
+        }
+    )
+
+    .then(async response => {
+
+        const text =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                text ||
+                "Unable to add product to cart"
+            );
+
+        }
+
+        return text;
+
+    })
+
+    .then(() => {
+
+        showMessage(
+            "Product added to cart successfully! 🛒",
+            "success"
+        );
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "danger"
+        );
+
+    });
+
+}
+
+
+// ==============================
+// MESSAGE
+// ==============================
+
+function showMessage(
+    message,
+    type
+) {
+
+    const messageBox =
+        document.getElementById(
+            "message"
+        );
+
+
+    messageBox.innerHTML = `
+
+        <div class="alert alert-${type}">
+
+            ${message}
+
+        </div>
+
+    `;
+
+
+    setTimeout(() => {
+
+        messageBox.innerHTML = "";
+
+    }, 3000);
+
+}
+
+
+// ==============================
+// START
+// ==============================
+
+loadCategories();
+
+loadProducts();
+
+</script>
+
+</body>
+
+</html>

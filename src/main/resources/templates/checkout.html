@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Checkout - Online Grocery Store</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <style>
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .checkout-card {
+            border: none;
+            border-radius: 15px;
+        }
+
+        .summary-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+
+        .total-box {
+            background-color: #e9f7ef;
+            border-radius: 10px;
+        }
+
+        .error-box {
+            display: none;
+            border-radius: 10px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<nav class="navbar navbar-dark bg-success">
+
+    <div class="container">
+
+        <a class="navbar-brand fw-bold"
+           href="/">
+
+            🛒 Online Grocery Store
+
+        </a>
+
+        <div>
+
+            <a href="/products"
+               class="btn btn-light btn-sm me-2">
+
+                🛍️ Products
+
+            </a>
+
+            <a href="/cart"
+               class="btn btn-warning btn-sm">
+
+                🛒 Cart
+
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="container mt-5 mb-5">
+
+    <div class="text-center mb-4">
+
+        <h1>
+            🧾 Checkout
+        </h1>
+
+        <p class="text-muted">
+            Complete your order
+        </p>
+
+    </div>
+
+
+    <!-- ERROR MESSAGE -->
+
+    <div id="errorBox"
+         class="alert alert-danger error-box">
+
+        <strong>
+            ❌ Order could not be placed
+        </strong>
+
+        <div id="errorMessage"
+             class="mt-1">
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+
+        <!-- =========================
+             DELIVERY DETAILS
+        ========================= -->
+
+        <div class="col-md-7">
+
+            <div class="card checkout-card shadow">
+
+                <div class="card-body p-4">
+
+                    <h4>
+                        🏠 Delivery Details
+                    </h4>
+
+                    <hr>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Full Name
+                        </label>
+
+                        <input type="text"
+                               id="name"
+                               class="form-control"
+                               placeholder="Enter your name">
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input type="email"
+                               id="email"
+                               class="form-control"
+                               placeholder="Enter your email">
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Phone Number
+                        </label>
+
+                        <input type="text"
+                               id="phone"
+                               class="form-control"
+                               placeholder="Enter phone number">
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Delivery Address
+                        </label>
+
+                        <textarea id="address"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Enter delivery address"></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 PAYMENT
+            ========================= -->
+
+            <div class="card checkout-card shadow mt-4">
+
+                <div class="card-body p-4">
+
+                    <h4>
+                        💳 Payment Method
+                    </h4>
+
+                    <hr>
+
+
+                    <div class="form-check mb-3">
+
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment"
+                               id="cod"
+                               value="COD"
+                               checked>
+
+                        <label class="form-check-label"
+                               for="cod">
+
+                            💵 Cash on Delivery
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment"
+                               id="onlinePayment"
+                               value="ONLINE">
+
+                        <label class="form-check-label"
+                               for="onlinePayment">
+
+                            💳 Online Payment
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             ORDER SUMMARY
+        ========================= -->
+
+        <div class="col-md-5">
+
+            <div class="card checkout-card shadow">
+
+                <div class="card-body p-4">
+
+                    <h4>
+                        🛒 Order Summary
+                    </h4>
+
+                    <hr>
+
+                    <div id="orderSummary">
+
+                        <p class="text-muted">
+                            Loading cart...
+                        </p>
+
+                    </div>
+
+
+                    <div class="total-box p-3 mt-4">
+
+                        <div class="d-flex justify-content-between">
+
+                            <strong>
+                                Total Amount
+                            </strong>
+
+                            <strong id="totalAmount"
+                                    class="text-success">
+
+                                ₹0.00
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <button id="placeOrderButton"
+                            type="button"
+                            class="btn btn-success btn-lg w-100 mt-4"
+                            onclick="placeOrder()">
+
+                        ✅ Place Order
+
+                    </button>
+
+
+                    <a href="/cart"
+                       class="btn btn-outline-secondary w-100 mt-2">
+
+                        ← Back to Cart
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+
+// ==========================================
+// GET LOGGED-IN USER
+// ==========================================
+
+const storedUser =
+    localStorage.getItem("loggedInUser");
+
+
+if (!storedUser) {
+
+    alert("Please login before checkout.");
+
+    window.location.href = "/login";
+
+}
+
+
+let user = null;
+
+
+try {
+
+    user = JSON.parse(storedUser);
+
+} catch (error) {
+
+    console.error(error);
+
+    localStorage.removeItem("loggedInUser");
+
+    alert("Invalid login session.");
+
+    window.location.href = "/login";
+
+}
+
+
+// ==========================================
+// LOAD USER DETAILS
+// ==========================================
+
+if (user) {
+
+    document.getElementById("name").value =
+        user.name || "";
+
+    document.getElementById("email").value =
+        user.email || "";
+
+    document.getElementById("phone").value =
+        user.phone || "";
+
+    document.getElementById("address").value =
+        user.address || "";
+
+}
+
+
+// ==========================================
+// LOAD CART
+// ==========================================
+
+function loadCheckoutCart() {
+
+    if (!user || !user.id) {
+
+        showError(
+            "User information is missing. Please login again."
+        );
+
+        return;
+
+    }
+
+
+    fetch("/api/cart/" + user.id)
+
+        .then(response => {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load cart."
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(items => {
+
+            console.log(
+                "Checkout cart:",
+                items
+            );
+
+
+            const summary =
+                document.getElementById(
+                    "orderSummary"
+                );
+
+
+            summary.innerHTML = "";
+
+
+            if (!items || items.length === 0) {
+
+                summary.innerHTML = `
+
+                    <div class="alert alert-warning">
+
+                        🛒 Your cart is empty.
+
+                    </div>
+
+                `;
+
+                document.getElementById(
+                    "placeOrderButton"
+                ).disabled = true;
+
+                return;
+
+            }
+
+
+            let total = 0;
+
+
+            items.forEach(item => {
+
+                const product =
+                    item.product;
+
+
+                const quantity =
+                    item.quantity;
+
+
+                const itemTotal =
+                    Number(product.price) *
+                    Number(quantity);
+
+
+                total += itemTotal;
+
+
+                summary.innerHTML += `
+
+                    <div class="summary-item">
+
+                        <div class="d-flex justify-content-between">
+
+                            <div>
+
+                                <strong>
+                                    ${product.name}
+                                </strong>
+
+                                <br>
+
+                                <small class="text-muted">
+
+                                    ₹${Number(
+                                        product.price
+                                    ).toFixed(2)}
+
+                                    ×
+
+                                    ${quantity}
+
+                                </small>
+
+                            </div>
+
+                            <strong>
+
+                                ₹${Number(
+                                    itemTotal
+                                ).toFixed(2)}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            });
+
+
+            document.getElementById(
+                "totalAmount"
+            ).innerText =
+                "₹" + total.toFixed(2);
+
+
+        })
+
+        .catch(error => {
+
+            console.error(
+                "Cart loading error:",
+                error
+            );
+
+
+            document.getElementById(
+                "orderSummary"
+            ).innerHTML = `
+
+                <div class="alert alert-danger">
+
+                    ❌ Unable to load cart.
+
+                    <br>
+
+                    ${error.message}
+
+                </div>
+
+            `;
+
+        });
+
+}
+
+
+// ==========================================
+// PLACE ORDER
+// ==========================================
+
+function placeOrder() {
+
+    console.log("Place Order clicked");
+
+
+    const name =
+        document.getElementById(
+            "name"
+        ).value.trim();
+
+
+    const email =
+        document.getElementById(
+            "email"
+        ).value.trim();
+
+
+    const phone =
+        document.getElementById(
+            "phone"
+        ).value.trim();
+
+
+    const address =
+        document.getElementById(
+            "address"
+        ).value.trim();
+
+
+    const payment =
+        document.querySelector(
+            'input[name="payment"]:checked'
+        );
+
+
+    // Clear previous error
+
+    document.getElementById(
+        "errorBox"
+    ).style.display = "none";
+
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
+    if (name === "") {
+
+        showError(
+            "Please enter your full name."
+        );
+
+        return;
+
+    }
+
+
+    if (email === "") {
+
+        showError(
+            "Please enter your email."
+        );
+
+        return;
+
+    }
+
+
+    if (phone === "") {
+
+        showError(
+            "Please enter your phone number."
+        );
+
+        return;
+
+    }
+
+
+    if (address === "") {
+
+        showError(
+            "Please enter your delivery address."
+        );
+
+        return;
+
+    }
+
+
+    if (!payment) {
+
+        showError(
+            "Please select a payment method."
+        );
+
+        return;
+
+    }
+
+
+    if (payment.value === "ONLINE") {
+
+        showError(
+            "Online payment is not connected yet. Please select Cash on Delivery."
+        );
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // DISABLE BUTTON
+    // ==========================================
+
+    const button =
+        document.getElementById(
+            "placeOrderButton"
+        );
+
+
+    button.disabled = true;
+
+    button.innerText =
+        "⏳ Placing Order...";
+
+
+    // ==========================================
+    // PLACE ORDER API
+    // ==========================================
+
+    fetch(
+        "/api/orders/place/" + user.id,
+        {
+            method: "POST"
+        }
+    )
+
+    .then(async response => {
+
+        const responseText =
+            await response.text();
+
+
+        console.log(
+            "Order response:",
+            responseText
+        );
+
+
+        if (!response.ok) {
+
+            let message =
+                "Unable to place order.";
+
+
+            if (responseText) {
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            responseText
+                        );
+
+
+                    message =
+                        data.message ||
+                        data.error ||
+                        responseText;
+
+                } catch (error) {
+
+                    message =
+                        responseText;
+
+                }
+
+            }
+
+
+            throw new Error(
+                message
+            );
+
+        }
+
+
+        return responseText
+            ? JSON.parse(responseText)
+            : {};
+
+    })
+
+    .then(order => {
+
+        console.log(
+            "Order created:",
+            order
+        );
+
+
+        alert(
+            "🎉 Order placed successfully!"
+        );
+
+
+        window.location.href =
+            "/orders";
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Order error:",
+            error
+        );
+
+
+        showError(
+            error.message
+        );
+
+
+        button.disabled = false;
+
+        button.innerText =
+            "✅ Place Order";
+
+    });
+
+}
+
+
+// ==========================================
+// SHOW ERROR
+// ==========================================
+
+function showError(message) {
+
+    const errorBox =
+        document.getElementById(
+            "errorBox"
+        );
+
+
+    const errorMessage =
+        document.getElementById(
+            "errorMessage"
+        );
+
+
+    errorMessage.innerText =
+        message;
+
+
+    errorBox.style.display =
+        "block";
+
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+// ==========================================
+// START
+// ==========================================
+
+loadCheckoutCart();
+
+</script>
+
+</body>
+</html>
