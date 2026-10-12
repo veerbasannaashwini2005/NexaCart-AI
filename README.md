@@ -184,5 +184,20 @@ Online payment integration can be added in future using gateways such as Razorpa
 - Sales analytics dashboard
 - Cloud deployment
 - Mobile application
+
+## ⚙️ Jenkins Integration
+
+NexaCart AI was additionally tested using Jenkins to verify the project's build and execution workflow.
+
+### Jenkins Testing
+- Configured Jenkins for the project workflow.
+- Used Jenkins to execute the configured build process.
+- Checked the build result and reviewed the console output.
+- Used the results to verify the configured project build.
+
+### Tools Used
+- **Jenkins** – CI pipeline and build execution
+- **Maven** – Project build and dependency management
+- **Java** – Application development
 👩‍💻 Developer
 Veerbasanna AshwiniJava | Spring Boot | Spring Data JPA | Hibernate | MySQL | HTML5 | CSS3 | JavaScript | Bootstrap | Maven | Eclipse | Embedded Tomcat | BCrypt
